@@ -1,12 +1,12 @@
-extern crate htm;
 extern crate byteorder;
+extern crate htm;
 
+use byteorder::{BigEndian, ReadBytesExt};
+use htm::{SDRClassifier, SpatialPooler};
 use std::fs::File;
 use std::io::prelude::*;
-use std::path::Path;
 use std::io::BufReader;
-use byteorder::{ReadBytesExt, BigEndian};
-use htm::{SDRClassifier,SpatialPooler};
+use std::path::Path;
 
 fn main() {
     let mut images = ImageIter::new("../train-images.idx3-ubyte");
@@ -15,8 +15,7 @@ fn main() {
     let mut test_images = ImageIter::new("../t10k-images.idx3-ubyte");
     let mut test_labels = LabelIter::new("../t10k-labels.idx1-ubyte");
 
-
-    let mut sp = SpatialPooler::new(vec![28*28], vec![64*64*2]);
+    let mut sp = SpatialPooler::new(vec![28 * 28], vec![64 * 64 * 2]);
     sp.potential_radius = sp.num_inputs as i32;
     sp.global_inhibition = true;
     sp.num_active_columns_per_inh_area = 0.05 * sp.num_columns as f64;
@@ -38,7 +37,6 @@ fn main() {
 
     let mut record = 0;
     for _ in 0..images.size {
-
         let image = images.next().unwrap();
         let label = labels.next().unwrap();
 
@@ -48,21 +46,22 @@ fn main() {
 
         sp.compute(&input, true);
 
-        let r = classifier.compute(record as u32,
-                                   label as usize,
-                                   label as u8,
-                                   &sp.winner_columns[..],
-                                   true,
-                                   true);
-        record += 1;    
+        let r = classifier.compute(
+            record as u32,
+            label as usize,
+            label as u8,
+            &sp.winner_columns[..],
+            true,
+            true,
+        );
+        record += 1;
     }
 
     println!("Testing on: {}", test_images.size);
 
-    let mut good = 0;   
+    let mut good = 0;
     let total = test_images.size;
     for _ in 0..test_images.size {
-
         let image = test_images.next().unwrap();
         let label = test_labels.next().unwrap();
 
@@ -72,13 +71,15 @@ fn main() {
 
         sp.compute(&input, false);
         //println!("{:?}", &sp.winner_columns[..]);
-        let r = classifier.compute(record as u32,
-                                   label as usize,
-                                   label as u8,
-                                   &sp.winner_columns[..],
-                                   false,
-                                   true);
-        for &(ref step, ref probabilities) in &r {
+        let r = classifier.compute(
+            record as u32,
+            label as usize,
+            label as u8,
+            &sp.winner_columns[..],
+            false,
+            true,
+        );
+        for &(ref step, ref probabilities) in r {
             let (answer, score) = probabilities
                 .iter()
                 .enumerate()
@@ -92,10 +93,12 @@ fn main() {
         record += 1;
     }
 
-    println!("Accuracy: {}, Total: {} Good: {}",
-             good as f32 / total as f32,
-             total,
-             good);
+    println!(
+        "Accuracy: {}, Total: {} Good: {}",
+        good as f32 / total as f32,
+        total,
+        good
+    );
 }
 
 struct ImageIter {
@@ -124,7 +127,7 @@ impl ImageIter {
         let width = buf_reader.read_i32::<BigEndian>().unwrap() as usize;
         let height = buf_reader.read_i32::<BigEndian>().unwrap() as usize;
         ImageIter {
-            buffer: vec![0u8; width*height],
+            buffer: vec![0u8; width * height],
             reader: buf_reader,
             width: width,
             height: height,

@@ -1,6 +1,6 @@
 extern crate htm;
 
-use htm::{SpatialPooler,SDRClassifier};
+use htm::{SDRClassifier, SpatialPooler};
 
 fn main() {
     let mut sp = SpatialPooler::new(vec![10], vec![100]);
@@ -14,10 +14,8 @@ fn main() {
     let mut classifier: SDRClassifier<u8> =
         SDRClassifier::new(vec![0, 1], 0.1, 0.3, sp.num_columns);
 
-  
     println!("Initializing");
     sp.init();
-
 
     let mut input = vec![false; sp.num_inputs];
 
@@ -37,21 +35,21 @@ fn main() {
             let r = classifier.compute(record, val, val as u8, &sp.winner_columns[..], true, true);
             if i == 99 {
                 println!("value: {}", val);
-                for &(ref step, ref probabilities) in &r {
-                    println!("{} {:?}",
-                             step,
-                             probabilities
-                                 .iter()
-                                 .enumerate()
-                                 .max_by(|&(_, a), &(_, b)| a.partial_cmp(b).unwrap())
-                                 .unwrap());
+                for &(ref step, ref probabilities) in r {
+                    println!(
+                        "{} {:?}",
+                        step,
+                        probabilities
+                            .iter()
+                            .enumerate()
+                            .max_by(|&(_, a), &(_, b)| a.partial_cmp(b).unwrap())
+                            .unwrap()
+                    );
                 }
             }
 
-
             record += 1;
         }
-
     }
-
 }
+
