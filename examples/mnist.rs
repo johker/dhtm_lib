@@ -9,11 +9,16 @@ use std::io::BufReader;
 use std::path::Path;
 
 fn main() {
-    let mut images = ImageIter::new("../train-images.idx3-ubyte");
-    let mut labels = LabelIter::new("../train-labels.idx1-ubyte");
+    println!(
+        "Path exists: {}",
+        Path::new("/home/workspace/data/train-images.idx3-ubyte").exists()
+    );
 
-    let mut test_images = ImageIter::new("../t10k-images.idx3-ubyte");
-    let mut test_labels = LabelIter::new("../t10k-labels.idx1-ubyte");
+    let mut images = ImageIter::new("/home/workspace/data/train-images.idx3-ubyte");
+    let mut labels = LabelIter::new("/home/workspace/data/train-labels.idx1-ubyte");
+
+    let mut test_images = ImageIter::new("/home/workspace/data/t10k-images.idx3-ubyte");
+    let mut test_labels = LabelIter::new("/home/workspace/data/t10k-labels.idx1-ubyte");
 
     let mut sp = SpatialPooler::new(vec![28 * 28], vec![64 * 64 * 2]);
     sp.potential_radius = sp.num_inputs as i32;
